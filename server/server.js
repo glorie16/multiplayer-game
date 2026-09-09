@@ -27,7 +27,17 @@ setInterval (() => {
                     
                     if (playerData.health <= 0) {
                         playerData.isDead = true
+                        //reset health immediately for respawn
+                        playerData.health = 100
                         console.log("Player died!")
+
+                         setTimeout(() => {
+                            playerData.x = Math.floor(Math.random() * 600)
+                            playerData.y = Math.floor(Math.random() * 400)
+
+                            playerData.isDead = false
+                        }, 3000)
+    
                     }
                 }
             }
@@ -125,8 +135,6 @@ server.on('connection', (socket) => {
         }
     }
 
-        
-
         const allPlayers = Array.from(players.values())
         socket.send(JSON.stringify({players: allPlayers, projectiles: projectiles}))
     }, 10);
@@ -135,7 +143,7 @@ server.on('connection', (socket) => {
         clearInterval(timerId)
         players.delete(socket)
     })
-    
+
 })
 
 console.log("Server listening on ws://localhost:8080/")
