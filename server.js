@@ -20,9 +20,15 @@ setInterval (() => {
         Array.from(players.entries()).forEach(([playerSocket, playerData]) => {
             let distance = Math.sqrt((projectile.x - playerData.x)**2 + (projectile.y - playerData.y)**2)
             if (distance < 20) {
-                if (projectile.owner != playerSocket) {
-                    console.log("Player hit!")
+                if (projectile.owner != playerSocket && playerData.isDead === false) {
                     projectile.hit = true
+                    playerData.health -= 10
+                    console.log(`Player hit! Health: ${playerData.health}`)
+                    
+                    if (playerData.health <= 0) {
+                        playerData.isDead = true
+                        console.log("Player died!")
+                    }
                 }
             }
         })
@@ -48,7 +54,7 @@ server.on('connection', (socket) => {
 
     const nameValue = Math.floor(Math.random() * names.length)
 
-    players.set(socket, {x:300, y:200, movingRight: false, movingLeft: false, movingUp: false, movingDown: false, color: colors[colorValue], name: names[nameValue]})
+    players.set(socket, {x:300, y:200, movingRight: false, movingLeft: false, movingUp: false, movingDown: false, color: colors[colorValue], name: names[nameValue], health: 100, isDead:false})
     
     socket.on('message', (message) => {
         const data = JSON.parse(message)
@@ -97,21 +103,29 @@ server.on('connection', (socket) => {
     })
 
     const timerId = setInterval(() => {
-        if (players.get(socket).movingRight){
-            players.get(socket).x += 10/6
+        const player = players.get(socket)
+
+        if (!player.isDead) {
+            
+
+        if (player.movingRight){
+            player.x += 10/6
             }
 
-        if (players.get(socket).movingLeft){
-            players.get(socket).x -= 10/6
+        if (player.movingLeft){
+            player.x -= 10/6
             }
 
-        if (players.get(socket).movingUp){
-            players.get(socket).y -= 10/6
+        if (player.movingUp){
+            player.y -= 10/6
             }
 
-        if (players.get(socket).movingDown){
-            players.get(socket).y += 10/6
+        if (player.movingDown){
+            player.y += 10/6
         }
+    }
+
+        
 
         const allPlayers = Array.from(players.values())
         socket.send(JSON.stringify({players: allPlayers, projectiles: projectiles}))

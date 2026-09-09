@@ -14,8 +14,9 @@ const loop = () => {
   // draw circle and clear old circle after new position is calculated so old frame isn't there
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-
   players.forEach((player) => {
+    // placeholder for dead players
+    if (player.isDead === false) {
     ctx.fillStyle = player.color;
     ctx.beginPath();
     ctx.arc(player.x, player.y, 15, 0, Math.PI * 2);
@@ -23,7 +24,7 @@ const loop = () => {
 
     ctx.fillStyle = 'white'
     ctx.fillText(player.name, player.x, player.y - 20)
-
+    }
   })
   
   projectiles.forEach((projectile) => {
