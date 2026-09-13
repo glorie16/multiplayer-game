@@ -3,58 +3,17 @@ const WebSocket = require('ws');
 // require Player object from Player.js
 const { Player } = require('./Player.js')
 const { Projectile } = require('./Projectile.js')
+const { Room } = require('./Room.js')
 
 const server = new WebSocket.Server({port: 8080});
 
-const players = new Map()
-
-let projectiles = []
+const defaultRoom = new Room()
 
 let speed = 5
 
 const colors = ['red', 'yellow', 'blue', 'green', 'pink', 'purple']
 
 const names = ['Bob', 'Marshal', 'Rudy', 'Cat', 'Diva', 'Skye']
-
-setInterval (() => {
-    projectiles.forEach((projectile) => {
-        projectile.update()
-
-        Array.from(players.entries()).forEach(([playerSocket, playerData]) => {
-            if (projectile.collidesWith(playerData)) {
-                if (projectile.owner != playerSocket && playerData.isDead === false) {
-                    projectile.hit = true
-                    playerData.health -= 10
-                    console.log(`Player hit! Health: ${playerData.health}`)
-                    
-                    if (playerData.health <= 0) {
-                        playerData.isDead = true
-                        //reset health immediately for respawn
-                        playerData.health = 100
-                        console.log("Player died!")
-
-                         setTimeout(() => {
-                            playerData.x = Math.floor(Math.random() * 600)
-                            playerData.y = Math.floor(Math.random() * 400)
-
-                            playerData.isDead = false
-                        }, 3000)
-    
-                    }
-                }
-            }
-        })
-    })
-
-    // filter creates entirely new array
-
-    projectiles = projectiles.filter((projectile) => {
-         if (projectile.hit == true) {
-            return false
-        }
-        return projectile.isInScreen()
-    })
-}, 10)
 
 // runs once per new client that connects
 server.on('connection', (socket) => {
@@ -65,7 +24,7 @@ server.on('connection', (socket) => {
     const nameValue = Math.floor(Math.random() * names.length)
 
     const player = new Player(names[nameValue], colors[colorValue])
-    players.set(socket, player)
+    defaultRoom.players.set(socket, player)
     //players.set(socket, {x:300, y:200, movingRight: false, movingLeft: false, movingUp: false, movingDown: false, color: colors[colorValue], name: names[nameValue], health: 100, isDead:false})
     
     socket.on('message', (message) => {
@@ -75,29 +34,29 @@ server.on('connection', (socket) => {
         if (data.type === 'keydown' || data.type === 'keyup'){
             const pressed = data.type === 'keydown'
             if (data.key.toLowerCase() === 'd') {
-                players.get(socket).movingRight = pressed
+                player.movingRight = pressed
             }
             else if (data.key.toLowerCase() === 'a') {
-                players.get(socket).movingLeft = pressed
+                player.movingLeft = pressed
             }
             else if (data.key.toLowerCase() === 'w') {
-                players.get(socket).movingUp = pressed
+                player.movingUp = pressed
             }
             else if (data.key.toLowerCase() === 's') {
-                players.get(socket).movingDown = pressed
+                player.movingDown = pressed
             }
         }
 
         if (data.type === 'mousemove') {
-            players.get(socket).mouseX = data.x
-            players.get(socket).mouseY = data.y
+            player.mouseX = data.x
+            player.mouseY = data.y
         }
 
         if (data.type === 'click') {
-            let x = players.get(socket).x
-            let y = players.get(socket).y
-            let mouseX = players.get(socket).mouseX
-            let mouseY = players.get(socket).mouseY
+            let x = player.x
+            let y = player.y
+            let mouseX = player.mouseX
+            let mouseY = player.mouseY
             console.log(mouseX, mouseY)
 
             let deltaY = mouseY - y
@@ -112,7 +71,7 @@ server.on('connection', (socket) => {
             
             // message for debugging
             console.log(x, y, mouseX, mouseY, deltaX, deltaY, angle)
-            projectiles.push(projectile)
+            defaultRoom.projectiles.push(projectile)
         }
     })
 
@@ -120,13 +79,13 @@ server.on('connection', (socket) => {
     
         player.move()
 
-        const allPlayers = Array.from(players.values())
-        socket.send(JSON.stringify({players: allPlayers, projectiles: projectiles}))
+        const allPlayers = Array.from(defaultRoom.players.values())
+        socket.send(JSON.stringify({players: allPlayers, projectiles: defaultRoom.projectiles}))
     }, 10);
 
     socket.on('close', () => {
         clearInterval(timerId)
-        players.delete(socket)
+        defaultRoom.players.delete(socket)
     })
 
 })
