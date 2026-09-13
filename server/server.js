@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 
 // require Player object from Player.js
 const { Player } = require('./Player.js')
+const { Projectile } = require('./Projectile.js')
 
 const server = new WebSocket.Server({port: 8080});
 
@@ -17,12 +18,10 @@ const names = ['Bob', 'Marshal', 'Rudy', 'Cat', 'Diva', 'Skye']
 
 setInterval (() => {
     projectiles.forEach((projectile) => {
-        projectile.x += projectile.dx
-        projectile.y += projectile.dy
+        projectile.update()
 
         Array.from(players.entries()).forEach(([playerSocket, playerData]) => {
-            let distance = Math.sqrt((projectile.x - playerData.x)**2 + (projectile.y - playerData.y)**2)
-            if (distance < 20) {
+            if (projectile.collidesWith(playerData)) {
                 if (projectile.owner != playerSocket && playerData.isDead === false) {
                     projectile.hit = true
                     playerData.health -= 10
@@ -48,14 +47,12 @@ setInterval (() => {
     })
 
     // filter creates entirely new array
+
     projectiles = projectiles.filter((projectile) => {
-        if (projectile.x > 600 || projectile.x < 0 || projectile.y > 400 || projectile.y < 0) {
+         if (projectile.hit == true) {
             return false
         }
-        if (projectile.hit == true) {
-            return false
-        }
-        return true
+        return projectile.isInScreen()
     })
 }, 10)
 
@@ -111,9 +108,11 @@ server.on('connection', (socket) => {
             let dx = Math.cos(angle) * speed
             let dy = Math.sin(angle) * speed
 
-            const projectile_object = {x, y, dx, dy, owner: socket}
+            const projectile = new Projectile(x, y, dx, dy, socket)
+            
+            // message for debugging
             console.log(x, y, mouseX, mouseY, deltaX, deltaY, angle)
-            projectiles.push(projectile_object)
+            projectiles.push(projectile)
         }
     })
 
