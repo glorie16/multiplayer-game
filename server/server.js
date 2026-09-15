@@ -7,13 +7,27 @@ const { Room } = require('./Room.js')
 
 const server = new WebSocket.Server({port: 8080});
 
-const defaultRoom = new Room()
+let nextRoomId = 0
+// const defaultRoom = new Room()
+const Rooms = new Map()
 
 let speed = 5
 
 const colors = ['red', 'yellow', 'blue', 'green', 'pink', 'purple']
 
 const names = ['Bob', 'Marshal', 'Rudy', 'Cat', 'Diva', 'Skye']
+
+function getAvailableRooms() {
+    for (const room of Rooms.values()) {
+        if (!room.isFull()){
+            return room
+        }
+    }
+    const room = new Room()
+    nextRoomId += 1
+    Rooms.set(nextRoomId, room)
+    return room
+}
 
 // runs once per new client that connects
 server.on('connection', (socket) => {
@@ -24,7 +38,9 @@ server.on('connection', (socket) => {
     const nameValue = Math.floor(Math.random() * names.length)
 
     const player = new Player(names[nameValue], colors[colorValue])
-    defaultRoom.players.set(socket, player)
+
+    const matchedRoom = getAvailableRooms()
+    matchedRoom.players.set(socket, player)
     //players.set(socket, {x:300, y:200, movingRight: false, movingLeft: false, movingUp: false, movingDown: false, color: colors[colorValue], name: names[nameValue], health: 100, isDead:false})
     
     socket.on('message', (message) => {
@@ -71,7 +87,7 @@ server.on('connection', (socket) => {
             
             // message for debugging
             console.log(x, y, mouseX, mouseY, deltaX, deltaY, angle)
-            defaultRoom.projectiles.push(projectile)
+            matchedRoom.projectiles.push(projectile)
         }
     })
 
@@ -79,13 +95,13 @@ server.on('connection', (socket) => {
     
         player.move()
 
-        const allPlayers = Array.from(defaultRoom.players.values())
-        socket.send(JSON.stringify({players: allPlayers, projectiles: defaultRoom.projectiles}))
+        const allPlayers = Array.from(matchedRoom.players.values())
+        socket.send(JSON.stringify({players: allPlayers, projectiles: matchedRoom.projectiles}))
     }, 10);
 
     socket.on('close', () => {
         clearInterval(timerId)
-        defaultRoom.players.delete(socket)
+        matchedRoom.players.delete(socket)
     })
 
 })

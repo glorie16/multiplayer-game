@@ -2,6 +2,7 @@ class Room {
     constructor() {
         this.players = new Map()
         this.projectiles = []
+        this.maxPlayers = 4
         // call tick every 10 miliseconds
         setInterval (() => {
             this.tick()
@@ -46,6 +47,10 @@ class Room {
         return projectile.isInScreen()
     })
     
+    }
+
+    isFull() {
+        return this.players.size === this.maxPlayers
     }
 }
 
