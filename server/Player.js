@@ -10,11 +10,14 @@ class Player {
         this.movingDown = false
         this.health = 100
         this.isDead = false
+
+        this.lives = 3
+        this.isEliminated = false
     }
 
     move() {
         //encapsulation
-        if (!this.isDead) {
+        if (!this.isDead && !this.isEliminated) {
             if (this.movingRight) {
                 this.x += 10/6
             }

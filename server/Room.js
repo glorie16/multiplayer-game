@@ -12,6 +12,8 @@ class Room {
 
         this.enteredStateAt = Date.now() // NEW
         this.finishedDuration = 5000 // NEW: ms to sit in FINISHED before resetting
+        this.winner = null
+
 
         // call tick every 10 miliseconds
         setInterval (() => {
@@ -66,19 +68,25 @@ class Room {
                     playerData.health -= 10
                     console.log(`Player hit! Health: ${playerData.health}`)
                     
+                    
                     if (playerData.health <= 0) {
                         playerData.isDead = true
+                        playerData.lives -= 1
+                        if (playerData.lives === 0) {
+                            playerData.isEliminated = true
+                        }
                         //reset health immediately for respawn
                         playerData.health = 100
                         console.log("Player died!")
 
-                        setTimeout(() => {
-                            playerData.x = Math.floor(Math.random() * 600)
-                            playerData.y = Math.floor(Math.random() * 400)
+                        if (!playerData.isEliminated) {
+                            setTimeout(() => {
+                                playerData.x = Math.floor(Math.random() * 600)
+                                playerData.y = Math.floor(Math.random() * 400)
 
-                            playerData.isDead = false
-                        }, 3000)
-    
+                                playerData.isDead = false
+                            }, 3000)
+                        }
                     }
                 }
             }
@@ -93,6 +101,13 @@ class Room {
         return projectile.isInScreen()
     })
     
+    const alivePlayers = Array.from(this.players.values()).filter((player) => 
+        !player.isEliminated)
+
+    if (alivePlayers.length === 1 && this.players.size > 1) {
+        this.winner = alivePlayers[0]
+        this.setState('FINISHED')
+        }
     }
 
     tickFinished() {

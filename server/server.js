@@ -96,7 +96,15 @@ server.on('connection', (socket) => {
         player.move()
 
         const allPlayers = Array.from(matchedRoom.players.values())
-        socket.send(JSON.stringify({players: allPlayers, projectiles: matchedRoom.projectiles}))
+        socket.send(JSON.stringify({
+            players: allPlayers, 
+            projectiles: matchedRoom.projectiles,
+            state: matchedRoom.state,
+            winner: matchedRoom.winner || null,
+            // minPlayers: matchedRoom.minPlayers,
+            maxPlayers: matchedRoom.maxPlayers,
+            countdownRemaining: matchedRoom.countdownRemaining
+        }))
     }, 10);
 
     socket.on('close', () => {

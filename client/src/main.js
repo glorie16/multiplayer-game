@@ -9,6 +9,12 @@ let players = []
 
 let projectiles = []
 
+let gameState = 'WAITING'
+let winner = null
+let maxPlayers = 0
+let countdownRemaining = 0
+
+
 // function to move
 const loop = () => {
   // draw circle and clear old circle after new position is calculated so old frame isn't there
@@ -16,7 +22,7 @@ const loop = () => {
 
   players.forEach((player) => {
     // placeholder for dead players
-    if (player.isDead === false) {
+    if (gameState === 'IN_PROGRESS' && player.isDead === false && player.isEliminated === false) {
     ctx.fillStyle = player.color;
     ctx.beginPath();
     ctx.arc(player.x, player.y, 15, 0, Math.PI * 2);
@@ -26,6 +32,24 @@ const loop = () => {
     ctx.fillText(player.name, player.x, player.y - 20)
     }
   })
+
+  if (gameState === 'FINISHED' && winner) {
+    ctx.fillStyle = 'white'
+    ctx.font = '30px sans-serif' // you'll probably want a bigger font just for this
+    ctx.fillText(`${winner.name} wins!`, canvas.width / 2, canvas.height / 2)
+}
+  if (gameState === 'WAITING') {
+    ctx.fillStyle = 'white'
+    ctx.font = '30px sans-serif'
+    ctx.fillText("Waiting for players to join...", canvas.width / 2, canvas.height / 2)
+    ctx.fillText(`${players.length} / ${maxPlayers}...`, canvas.width / 2 + 30, canvas.height / 2 + 30)
+}
+
+if (gameState === 'COUNTDOWN') {
+    ctx.fillStyle = 'white'
+    ctx.font = '30px sans-serif'
+    ctx.fillText(`Starting in ${Math.ceil(countdownRemaining)}...`, canvas.width / 2, canvas.height / 2)
+}
   
   projectiles.forEach((projectile) => {
     ctx.fillStyle = 'white';
@@ -40,14 +64,15 @@ const loop = () => {
 
   }
 
-
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data)
     players = data.players
     projectiles = data.projectiles
+    gameState = data.state
+    winner = data.winner
+    countdownRemaining = data.countdownRemaining
+    maxPlayers = data.maxPlayers
   }
-
- 
 
 
 window.addEventListener('keydown', (event) => {
