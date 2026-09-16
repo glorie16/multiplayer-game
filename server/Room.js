@@ -3,6 +3,16 @@ class Room {
         this.players = new Map()
         this.projectiles = []
         this.maxPlayers = 4
+        this.minPlayers = 2
+
+        this.state = 'WAITING'
+
+        this.countdownRemaining = 0
+        this.countdownDuration = 5
+
+        this.enteredStateAt = Date.now() // NEW
+        this.finishedDuration = 5000 // NEW: ms to sit in FINISHED before resetting
+
         // call tick every 10 miliseconds
         setInterval (() => {
             this.tick()
@@ -10,6 +20,42 @@ class Room {
     }
 
     tick() {
+        switch(this.state) {
+            case 'WAITING':
+                this.tickWaiting()
+                break
+            case 'COUNTDOWN':
+                this.tickCountdown()
+                break
+            case 'IN_PROGRESS':
+                this.tickInProgress()
+                break
+            case 'FINISHED':
+                this.tickFinished()
+                break
+        }
+    }
+
+    tickWaiting(){
+        if (this.players.size >= 2){
+            this.setState('COUNTDOWN')
+            this.countdownRemaining = this.countdownDuration
+        }
+    }
+
+    tickCountdown(){
+        this.countdownRemaining -= 0.01
+
+        if (this.players.size < 2) {
+            this.setState('WAITING')
+        }
+
+        if (this.countdownRemaining <= 0) {
+            this.setState('IN_PROGRESS')
+        }
+    }
+
+    tickInProgress() {
         this.projectiles.forEach((projectile) => {
         projectile.update()
 
@@ -49,8 +95,25 @@ class Room {
     
     }
 
+    tickFinished() {
+        const elapsed = Date.now() - this.enteredStateAt
+        if (elapsed >= this.finishedDuration) {
+        // TODO: reset scores, health, positions here before going back to WAITING
+        this.setState('WAITING')
+        }
+    }
+
     isFull() {
         return this.players.size === this.maxPlayers
+    }
+
+    isJoinable() {
+        return (this.state === 'WAITING' || this.state === 'COUNTDOWN')
+    }
+
+    setState(newState) {
+        this.state = newState
+        this.enteredStateAt = Date.now()
     }
 }
 
