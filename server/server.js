@@ -19,12 +19,13 @@ const names = ['Bob', 'Marshal', 'Rudy', 'Cat', 'Diva', 'Skye']
 
 function getAvailableRooms() {
     for (const room of Rooms.values()) {
-        if (!room.isFull()){
+        if (!room.isFull() && room.isJoinable()){
             return room
         }
     }
     const room = new Room()
     nextRoomId += 1
+    room.id = nextRoomId
     Rooms.set(nextRoomId, room)
     return room
 }
@@ -68,7 +69,7 @@ server.on('connection', (socket) => {
             player.mouseY = data.y
         }
 
-        if (data.type === 'click') {
+        if (data.type === 'click' && matchedRoom.state == 'IN_PROGRESS') {
             let x = player.x
             let y = player.y
             let mouseX = player.mouseX
@@ -110,6 +111,11 @@ server.on('connection', (socket) => {
     socket.on('close', () => {
         clearInterval(timerId)
         matchedRoom.players.delete(socket)
+
+        if (matchedRoom.players.size === 0){
+            Rooms.delete(matchedRoom.id)
+            console.log(Rooms.size)
+        }
     })
 
 })

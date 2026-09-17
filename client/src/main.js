@@ -29,6 +29,7 @@ const loop = () => {
     ctx.fill()
 
     ctx.fillStyle = 'white'
+    ctx.font = '14px sans-serif'
     ctx.fillText(player.name, player.x, player.y - 20)
     }
   })

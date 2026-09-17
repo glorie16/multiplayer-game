@@ -104,8 +104,10 @@ class Room {
     const alivePlayers = Array.from(this.players.values()).filter((player) => 
         !player.isEliminated)
 
-    if (alivePlayers.length === 1 && this.players.size > 1) {
+    //  && this.players.size > 1
+    if (alivePlayers.length === 1) {
         this.winner = alivePlayers[0]
+        this.projectiles = [] 
         this.setState('FINISHED')
         }
     }
@@ -114,7 +116,17 @@ class Room {
         const elapsed = Date.now() - this.enteredStateAt
         if (elapsed >= this.finishedDuration) {
         // TODO: reset scores, health, positions here before going back to WAITING
-        this.setState('WAITING')
+            this.projectiles = []
+            this.winner = null
+
+            Array.from(this.players.values()).forEach((player) => {
+                player.health = 100
+                player.lives = 3
+                player.isDead = false
+                player.isEliminated = false
+                }
+            )
+            this.setState('WAITING')
         }
     }
 
