@@ -1,7 +1,8 @@
 class Player {
-    constructor(name, color){
+    constructor(name, color, rating){
         this.name = name
         this.color = color
+        this.rating = rating
         this.x = 300
         this.y = 200
         this.movingLeft = false
@@ -13,6 +14,8 @@ class Player {
 
         this.lives = 3
         this.isEliminated = false
+
+        this.room = null
     }
 
     move() {
