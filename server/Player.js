@@ -22,21 +22,21 @@ class Player {
         //encapsulation
         if (!this.isDead && !this.isEliminated) {
             if (this.movingRight) {
-                this.x += 10/6
+                this.x = Math.min(Math.max(this.x + 10/6, 0), 585)
             }
             if (this.movingLeft) {
-                this.x -= 10/6
+                this.x = Math.max(this.x - 10/6, 15)
             }
             if (this.movingUp) {
-                this.y -= 10/6
+                this.y = Math.max(this.y - 10/6, 35)
             }
             if (this.movingDown) {
-                this.y += 10/6
+                this.y = Math.min(Math.max(this.y + 10/6, 0), 385)
             }
         }
     }
 
-    
+
 }
 
 module.exports = { Player }

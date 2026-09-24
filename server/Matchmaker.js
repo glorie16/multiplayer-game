@@ -27,7 +27,8 @@ class Matchmaker{
 
     findMatch() {
         console.log(`Checking queue, size: ${this.queue.size}`)
-        if (this.queue.size < this.minPlayers) return
+        while (this.queue.size >= this.minPlayers) {
+        // if (this.queue.size < this.minPlayers) return
 
         let longestWaiting = null
 
@@ -67,8 +68,13 @@ class Matchmaker{
             group.forEach(([socket, playerData]) =>{
                 this.queue.delete(socket)
             })
-        }
+        
     }
+    else {
+        break
+    }
+}
+}
 }
 
 module.exports = { Matchmaker}
