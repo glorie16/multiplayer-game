@@ -1,5 +1,7 @@
 const socket = new WebSocket('ws://localhost:8080')
 
+let queueStartTime = Date.now()
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -9,7 +11,7 @@ let players = []
 
 let projectiles = []
 
-let gameState = 'WAITING'
+let gameState = 'QUEUED'
 let winner = null
 let maxPlayers = 0
 let countdownRemaining = 0
@@ -33,6 +35,14 @@ const loop = () => {
     ctx.fillText(player.name, player.x, player.y - 20)
     }
   })
+
+  if (gameState === 'QUEUED') {
+    // compute seconds waited from queueStartTime, draw text
+    const secondsWaited = ((Date.now() - queueStartTime) / 1000)
+    ctx.fillStyle = 'white'
+    ctx.font = '30px sans-serif'
+    ctx.fillText(`Waiting for a room... ${Math.floor(secondsWaited)} seconds`, canvas.width / 2, canvas.height / 2)
+}
 
   if (gameState === 'FINISHED' && winner) {
     ctx.fillStyle = 'white'
