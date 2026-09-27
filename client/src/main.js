@@ -1,5 +1,7 @@
 const socket = new WebSocket('ws://localhost:8080')
 
+const DISPLAY_WIDTH = 600
+const DISPLAY_HEIGHT = 460
 const GAME_HEIGHT = 400
 const HUD_HEIGHT = 60
 
@@ -8,8 +10,19 @@ let queueStartTime = Date.now()
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-ctx.textAlign = 'center'
+function setupCanvasForHiDPI() {
+  const dpr = window.devicePixelRatio || 1
 
+  canvas.width = DISPLAY_WIDTH * dpr
+  canvas.height = DISPLAY_HEIGHT * dpr
+  canvas.style.width = DISPLAY_WIDTH + 'px'
+  canvas.style.height = DISPLAY_HEIGHT + 'px'
+
+  ctx.scale(dpr, dpr)
+  ctx.textAlign = 'center'   // moved here, so it survives the reset
+}
+
+setupCanvasForHiDPI()
 
 let you = null
 let others = []
@@ -64,7 +77,7 @@ const loop = () => {
     ctx.fill()
 
     ctx.fillStyle = 'white'
-    ctx.font = '14px sans-serif'
+    ctx.font = '16px "VT323"'
     ctx.fillText(player.name, player.x, player.y - 20)
     }
   })
@@ -76,7 +89,7 @@ const loop = () => {
     ctx.fill()
 
     ctx.fillStyle = 'white'
-    ctx.font = '14px sans-serif'
+    ctx.font = '16px "VT323"'
     ctx.fillText(you.name, you.x, you.y - 20)
   }
 
@@ -89,26 +102,26 @@ const loop = () => {
     // compute seconds waited from queueStartTime, draw text
     const secondsWaited = ((Date.now() - queueStartTime) / 1000)
     ctx.fillStyle = 'white'
-    ctx.font = '30px sans-serif'
-    ctx.fillText(`Waiting for a room... ${Math.floor(secondsWaited)} seconds`, canvas.width / 2, canvas.height / 2)
+    ctx.font = '40px "VT323"'
+    ctx.fillText(`Waiting for a room... ${Math.floor(secondsWaited)} seconds`, DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
 }
 
   if (gameState === 'FINISHED' && winner) {
     ctx.fillStyle = 'white'
-    ctx.font = '30px sans-serif' // you'll probably want a bigger font just for this
-    ctx.fillText(`${winner.name} wins!`, canvas.width / 2, canvas.height / 2)
+    ctx.font = '40px "VT323"' // you'll probably want a bigger font just for this
+    ctx.fillText(`${winner.name} wins!`, DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
 }
   if (gameState === 'WAITING') {
     ctx.fillStyle = 'white'
-    ctx.font = '30px sans-serif'
-    ctx.fillText("Waiting for players to join...", canvas.width / 2, canvas.height / 2)
-    ctx.fillText(`${others.length + 1} / ${maxPlayers}...`, canvas.width / 2 + 30, canvas.height / 2 + 30)
+    ctx.font = '40px "VT323"'
+    ctx.fillText("Waiting for players to join...", DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
+    ctx.fillText(`${others.length + 1} / ${maxPlayers}...`, DISPLAY_WIDTH / 2 + 30, DISPLAY_HEIGHT / 2 + 30)
 }
 
 if (gameState === 'COUNTDOWN') {
     ctx.fillStyle = 'white'
-    ctx.font = '30px sans-serif'
-    ctx.fillText(`Starting in ${Math.ceil(countdownRemaining)}...`, canvas.width / 2, GAME_HEIGHT / 2)
+    ctx.font = '40px "VT323"'
+    ctx.fillText(`Starting in ${Math.ceil(countdownRemaining)}...`, DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2)
 }
   
   projectiles.forEach((projectile) => {
@@ -163,5 +176,9 @@ window.addEventListener('click', (event) => {
   socket.send(JSON.stringify({type: 'click'}))
 })
 
-loop()
-
+Promise.all([
+  document.fonts.load('20px "Press Start 2P"'),
+  document.fonts.load('16px "VT323"')
+]).then(() => {
+  loop()
+})
