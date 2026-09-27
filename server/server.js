@@ -108,10 +108,15 @@ server.on('connection', (socket) => {
 
             // const allPlayers = Array.from(player.room.players.values())
 
-            const allPlayers = Array.from(player.room.players.values()).map((p) => {
-                const { room, ...safeData } = p
-                return safeData
-            })
+            const others = Array.from(player.room.players.values())
+                .filter(p => p !== player)
+                .map((p) => {
+            
+                    const { room, ...safeData } = p
+                    return safeData
+                })
+
+            const { room: _room, ...you } = player
 
             let winner = null
             if (player.room.winner) {
@@ -119,7 +124,8 @@ server.on('connection', (socket) => {
                 winner = winnerData
 }
             socket.send(JSON.stringify({
-                players: allPlayers, 
+                others: others,
+                you: you,
                 projectiles: player.room.projectiles,
                 state: player.room.state,
                 winner: winner,

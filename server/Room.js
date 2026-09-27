@@ -81,8 +81,8 @@ class Room {
 
                         if (!playerData.isEliminated) {
                             setTimeout(() => {
-                                playerData.x = Math.floor(Math.random() * 600)
-                                playerData.y = Math.floor(Math.random() * 400)
+                                playerData.x = Math.floor(Math.random() * (585 - 15 + 1)) + 15
+                                playerData.y = Math.floor(Math.random() * (385 - 35 + 1)) + 35
 
                                 playerData.isDead = false
                             }, 3000)

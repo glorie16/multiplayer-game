@@ -16,6 +16,7 @@ class Player {
         this.isEliminated = false
 
         this.room = null
+        this.maxHealth = 100
     }
 
     move() {
