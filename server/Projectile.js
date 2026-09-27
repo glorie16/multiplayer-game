@@ -1,3 +1,5 @@
+const { CANVAS_WIDTH, CANVAS_HEIGHT, PROJECTILE_RADIUS } = require('./constants.js')
+
 class Projectile {
     constructor(x, y, dx, dy, owner) {
         this.x = x
@@ -14,12 +16,12 @@ class Projectile {
     }
 
     isInScreen() {
-        if (this.x > 600 || this.x < 0 || this.y > 400 || this.y < 0){
-            return false
-        }
-        else {
-            return true
-        }
+        return (
+            this.x + PROJECTILE_RADIUS >= 0 &&
+            this.x - PROJECTILE_RADIUS <= CANVAS_WIDTH &&
+            this.y + PROJECTILE_RADIUS >= 0 &&
+            this.y - PROJECTILE_RADIUS <= CANVAS_HEIGHT
+        )
     }
 
     // returns boolean true if collides, false if not

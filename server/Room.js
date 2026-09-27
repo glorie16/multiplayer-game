@@ -1,3 +1,5 @@
+const { PLAYER_MIN_X, PLAYER_MAX_X, PLAYER_MIN_Y, PLAYER_MAX_Y } = require('./constants.js')
+
 class Room {
     constructor() {
         this.players = new Map()
@@ -81,8 +83,8 @@ class Room {
 
                         if (!playerData.isEliminated) {
                             setTimeout(() => {
-                                playerData.x = Math.floor(Math.random() * (585 - 15 + 1)) + 15
-                                playerData.y = Math.floor(Math.random() * (385 - 35 + 1)) + 35
+                                playerData.x = Math.floor(Math.random() * (PLAYER_MAX_X - PLAYER_MIN_X + 1)) + PLAYER_MIN_X
+                                playerData.y = Math.floor(Math.random() * (PLAYER_MAX_Y - PLAYER_MIN_Y + 1)) + PLAYER_MIN_Y
 
                                 playerData.isDead = false
                             }, 3000)

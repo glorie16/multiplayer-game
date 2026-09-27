@@ -52,6 +52,9 @@ const loop = () => {
   ctx.fillStyle = bgGradient
   ctx.fillRect(0, 0, canvas.width, GAME_HEIGHT)
 
+  ctx.fillStyle = '#000'
+  ctx.fillRect(0, GAME_HEIGHT, canvas.width, HUD_HEIGHT)
+
   others.forEach((player) => {
     // placeholder for dead players
     if (gameState === 'IN_PROGRESS' && player.isDead === false && player.isEliminated === false) {

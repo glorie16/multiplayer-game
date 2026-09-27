@@ -1,3 +1,5 @@
+const { PLAYER_MIN_X, PLAYER_MAX_X, PLAYER_MIN_Y, PLAYER_MAX_Y } = require('./constants.js')
+
 class Player {
     constructor(name, color, rating){
         this.name = name
@@ -23,16 +25,16 @@ class Player {
         //encapsulation
         if (!this.isDead && !this.isEliminated) {
             if (this.movingRight) {
-                this.x = Math.min(Math.max(this.x + 10/6, 0), 585)
+                this.x = Math.min(Math.max(this.x + 10/6, 0), PLAYER_MAX_X)
             }
             if (this.movingLeft) {
-                this.x = Math.max(this.x - 10/6, 15)
+                this.x = Math.max(this.x - 10/6, PLAYER_MIN_X)
             }
             if (this.movingUp) {
-                this.y = Math.max(this.y - 10/6, 35)
+                this.y = Math.max(this.y - 10/6, PLAYER_MIN_Y)
             }
             if (this.movingDown) {
-                this.y = Math.min(Math.max(this.y + 10/6, 0), 385)
+                this.y = Math.min(Math.max(this.y + 10/6, 0), PLAYER_MAX_Y)
             }
         }
     }
